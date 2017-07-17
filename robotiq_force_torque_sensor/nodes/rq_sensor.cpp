@@ -45,6 +45,7 @@
 
 #include "ros/ros.h"
 #include "std_msgs/String.h"
+#include "std_srvs/Empty.h"
 #include "geometry_msgs/WrenchStamped.h"
 #include "robotiq_force_torque_sensor/rq_sensor_state.h"
 #include "robotiq_force_torque_sensor/ft_sensor.h"
@@ -86,6 +87,14 @@ static void decode_message_and_do(INT_8 const  * const buff, INT_8 * const ret)
 			strcpy(ret,"Done");
 		}
 	}
+}
+
+bool zeroCallback(std_srvs::Empty::Request& req,
+	std_srvs::Empty::Response& res)
+{
+	ROS_INFO("Zeroing FT sensor");
+	rq_state_do_zero_force_flag();
+	return true;
 }
 
 bool receiverCallback(robotiq_force_torque_sensor::sensor_accessor::Request& req,
@@ -146,6 +155,7 @@ int main(int argc, char **argv)
 {
 	ros::init(argc, argv, "robotiq_force_torque_sensor");
 	ros::NodeHandle n;
+	ros::NodeHandle nh ("~");
 	ros::param::param<int>("~max_retries", max_retries_, 100);
 
 	INT_8 bufStream[512];
@@ -176,6 +186,8 @@ int main(int argc, char **argv)
 	ros::Publisher sensor_pub = n.advertise<robotiq_force_torque_sensor::ft_sensor>("robotiq_force_torque_sensor", 512);
 	ros::Publisher wrench_pub = n.advertise<geometry_msgs::WrenchStamped>("robotiq_force_torque_wrench", 512);
 	ros::ServiceServer service = n.advertiseService("robotiq_force_torque_sensor_acc", receiverCallback);
+	
+	ros::ServiceServer set_zero = nh.advertiseService("set_zero", zeroCallback);
 
 	//std_msgs::String msg;
 	geometry_msgs::WrenchStamped wrenchMsg;

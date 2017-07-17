@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<launch>
+<node name="ft_sensor" pkg="robotiq_force_torque_sensor" type="rq_sensor" >
+    <param name="frame_id" value="fts_robotside" />
+    <remap from="robotiq_force_torque_wrench" to="/ft_sensor/wrench" />
+</node>
+</launch>
