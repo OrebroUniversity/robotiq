@@ -1,0 +1,12 @@
+<?xml version="1.0" ?>
+
+<launch>
+  <arg name="device_id" default="/dev/ttyUSB0"/>
+    
+  <param name="robot_description" command="$(find xacro)/xacro.py $(find robotiq_c2_model_visualization)/urdf/robotiq_c2_model.xacro" />
+  
+  <node name="gripper_ifce" pkg="robotiq_c_model_control" type="CModelRtuNode.py" args="$(arg device_id)" />
+
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="state_publisher" />
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find robotiq_c2_model_visualization)/visualize.rviz" required="true" />
+</launch>

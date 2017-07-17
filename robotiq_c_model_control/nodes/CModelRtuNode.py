@@ -49,6 +49,7 @@ import robotiq_modbus_rtu.comModbusRtu
 import os, sys
 from robotiq_c_model_control.msg import _CModel_robot_input  as inputMsg
 from robotiq_c_model_control.msg import _CModel_robot_output as outputMsg
+from sensor_msgs.msg import JointState
 
 def mainLoop(device):
     
@@ -63,6 +64,8 @@ def mainLoop(device):
 
     #The Gripper status is published on the topic named 'CModelRobotInput'
     pub = rospy.Publisher('CModelRobotInput', inputMsg.CModel_robot_input)
+    
+    js_pub = rospy.Publisher('/joint_states', JointState, queue_size=1)
 
     #The Gripper command is received from the topic named 'CModelRobotOutput'
     rospy.Subscriber('CModelRobotOutput', outputMsg.CModel_robot_output, gripper.refreshCommand)    
@@ -75,6 +78,15 @@ def mainLoop(device):
       status = gripper.getStatus()
       pub.publish(status)     
 
+      js_msg = JointState()
+      js_msg.header.stamp = rospy.Time.now()
+      js_msg.header.frame_id = '/world'
+      js_msg.name = [ 'robotiq_85_left_knuckle_joint' ]
+      js_msg.position = [ status.gPO / 255.0 ]
+      js_msg.velocity = [ 0 ]
+      js_msg.effort = [ 0 ]
+
+      js_pub.publish(js_msg)
       #Wait a little
       #rospy.sleep(0.05)
 
