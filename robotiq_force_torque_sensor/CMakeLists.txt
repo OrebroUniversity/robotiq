@@ -34,7 +34,9 @@ generate_messages(
 ## catkin specific configuration ##
 ###################################
 catkin_package(
+  INCLUDE_DIRS include
   CATKIN_DEPENDS message_runtime std_msgs
+  LIBRARIES ${PROJECT_NAME}
 )
 
 ###########
@@ -44,6 +46,9 @@ catkin_package(
 include_directories(
   include ${catkin_INCLUDE_DIRS}
 )
+
+add_library(${PROJECT_NAME} src/rq_sensor_com.cpp src/rq_sensor_state.cpp)
+target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
 
 # make the executables
 add_executable(rq_sensor nodes/rq_sensor.cpp src/rq_sensor_com.cpp src/rq_sensor_state.cpp)

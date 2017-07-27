@@ -42,6 +42,7 @@
 
 //////////
 //Includes
+#include<iostream>
 
 //Platform specific
 #ifdef __unix__ /*For Unix*/
@@ -138,7 +139,7 @@ HANDLE hSerial;
  * \details The functions loops  through all the serial com ports 
  *          and polls them to discover the sensor
  */
-INT_8 rq_sensor_com()
+INT_8 rq_sensor_com(std::string device_name)
 {
 #ifdef __unix__ //For Unix
 	UINT_8 device_found = 0;
@@ -147,23 +148,28 @@ INT_8 rq_sensor_com()
 
 	//Close a previously opened connection to a device
 	close(fd_connexion);
-	if ((dir = opendir("/sys/class/tty/")) == NULL)
-	{
+	if(device_name.compare("") == 0) {
+	    if ((dir = opendir("/sys/class/tty/")) == NULL)
+	    {
 		return -1;
-	}
+	    }
 
-	//Loops through the files in the /sys/class/tty/ directory
-	while ((entrydirectory = readdir(dir)) != NULL && device_found == 0)
-	{
+	    //Loops through the files in the /sys/class/tty/ directory
+	    while ((entrydirectory = readdir(dir)) != NULL && device_found == 0)
+	    {
 		//Look for a serial device
 		if (strstr(entrydirectory->d_name, "ttyS") || 
 			strstr(entrydirectory->d_name, "ttyUSB"))
 		{
-			device_found = rq_com_identify_device(entrydirectory->d_name);
+		    device_found = rq_com_identify_device(entrydirectory->d_name);
+		    //std::cerr<<"FOUND "<<entrydirectory->d_name<<std::endl;
 		}
-	}
+	    }
 
-	closedir(dir);
+	    closedir(dir);
+	} else {
+	    device_found = rq_com_identify_device(device_name.c_str());
+	}
 
 	if (device_found == 0)
 	{
